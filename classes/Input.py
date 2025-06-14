@@ -1,4 +1,5 @@
 import os
+import random
 import sys
 
 import numpy as np
@@ -6,6 +7,8 @@ import pygame
 from pygame.locals import K_LEFT, K_LSHIFT, K_RIGHT, K_SPACE, K_UP, K_h, K_k, K_l
 
 NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+prograssion_indices = [0, 2, 4, 5, 7, 9, 11]
 
 
 def freq_to_note(freq):
@@ -24,7 +27,9 @@ class Input:
         self.mouseX = 0
         self.mouseY = 0
         self.entity = entity
-        self.targetNote = "C#"
+        self.targetKeyIndex = random.randint(0, 11)
+
+        self.counter = 0
 
     def checkForInput(self):
         events = pygame.event.get()
@@ -119,6 +124,15 @@ class Input:
 
             # target note
             font = pygame.font.Font(None, 30)
+            if self.counter % 360 == 0:
+                self.targetNote = NOTE_NAMES[
+                    (
+                        self.targetKeyIndex
+                        + prograssion_indices[(self.counter // 30) % 7]
+                    )
+                    % 12
+                ]
+
             text_surf = font.render(f"TARGET: {self.targetNote}", True, (255, 255, 255))
             text_rect = text_surf.get_rect(
                 bottomleft=(10, self.entity.screen.get_height() - 10)
@@ -133,6 +147,8 @@ class Input:
             )
             self.entity.screen.blit(text_surf, text_rect)
             pygame.display.update()
+
+        self.counter += 1
 
 
 if __name__ == "__main__":
