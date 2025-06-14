@@ -21,8 +21,8 @@ class GoTrait:
         else:
             self.animation.deltaTime = 7
             if abs(self.entity.vel.x) > 3.2:
-                self.entity.vel.x = 3.2 * self.heading
-            self.maxVel = 3.2
+                self.entity.vel.x = 3.2 * self.heading * 0.5
+            self.maxVel = 3.2 * 0.5
 
         if self.direction != 0:
             self.heading = self.direction
@@ -49,7 +49,7 @@ class GoTrait:
                     self.animation.inAir()
                 else:
                     self.animation.idle()
-        if (self.entity.invincibilityFrames//2) % 2 == 0:
+        if (self.entity.invincibilityFrames // 2) % 2 == 0:
             self.drawEntity()
 
     def updateAnimation(self, animation):

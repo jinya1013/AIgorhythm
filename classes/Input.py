@@ -1,6 +1,22 @@
-import pygame
-from pygame.locals import *
+import os
 import sys
+
+import numpy as np
+import pygame
+from pygame.locals import K_LEFT, K_LSHIFT, K_RIGHT, K_SPACE, K_UP, K_h, K_k, K_l
+
+NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
+
+
+def freq_to_note(freq):
+    if freq == 0:
+        return None, None
+    A4 = 440.0
+    n = int(round(12 * np.log2(freq / A4)))
+    note_number = n + 69
+    octave = note_number // 12 - 1
+    note_index = note_number % 12
+    return NOTE_NAMES[note_index], octave
 
 
 class Input:
@@ -8,10 +24,12 @@ class Input:
         self.mouseX = 0
         self.mouseY = 0
         self.entity = entity
+        self.targetNote = "C#"
 
     def checkForInput(self):
         events = pygame.event.get()
         self.checkForKeyboardInput()
+        self.checkForFileInput()
         self.checkForMouseInput(events)
         self.checkForQuitAndRestartInputEvents(events)
 
@@ -23,12 +41,12 @@ class Input:
         elif pressedKeys[K_RIGHT] or pressedKeys[K_l] and not pressedKeys[K_LEFT]:
             self.entity.traits["goTrait"].direction = 1
         else:
-            self.entity.traits['goTrait'].direction = 0
+            self.entity.traits["goTrait"].direction = 0
 
         isJumping = pressedKeys[K_SPACE] or pressedKeys[K_UP] or pressedKeys[K_k]
-        self.entity.traits['jumpTrait'].jump(isJumping)
+        self.entity.traits["jumpTrait"].jump(isJumping)
 
-        self.entity.traits['goTrait'].boost = pressedKeys[K_LSHIFT]
+        self.entity.traits["goTrait"].boost = pressedKeys[K_LSHIFT]
 
     def checkForMouseInput(self, events):
         mouseX, mouseY = pygame.mouse.get_pos()
@@ -52,8 +70,9 @@ class Input:
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
-            if event.type == pygame.KEYDOWN and \
-                (event.key == pygame.K_ESCAPE or event.key == pygame.K_F5):
+            if event.type == pygame.KEYDOWN and (
+                event.key == pygame.K_ESCAPE or event.key == pygame.K_F5
+            ):
                 self.entity.pause = True
                 self.entity.pauseObj.createBackgroundBlur()
 
@@ -68,3 +87,58 @@ class Input:
             if e.type == pygame.MOUSEBUTTONUP and e.button == button:
                 return True
         return False
+
+    def checkForFileInput(self):
+        with open("pitch.txt", "r") as f:
+            file_content = f.readlines()
+
+        if file_content:
+            (
+                pitch,
+                magnitude,
+                note,
+                octave,
+            ) = file_content[-1].split(",")
+            print(f"pitch: {pitch}, magnitude: {magnitude}, note: {note}")
+            # if float(magnitude) > 30:
+            #     if float(pitch) > 700:
+            #         self.entity.traits["jumpTrait"].jump(True)
+            #     else:
+            #         pass
+            #     if float(pitch) > 500:
+            #         self.entity.traits["goTrait"].direction = 1
+            # else:
+            #     self.entity.traits["goTrait"].direction = 0
+            if float(magnitude) > 30:
+                print(
+                    f"note: {note}, targetNote: {self.targetNote}, note == targetNote: {note == self.targetNote}"
+                )
+                if note == self.targetNote:
+                    self.entity.traits["jumpTrait"].jump(True)
+            self.entity.traits["goTrait"].direction = 1
+
+            # target note
+            font = pygame.font.Font(None, 30)
+            text_surf = font.render(f"TARGET: {self.targetNote}", True, (255, 255, 255))
+            text_rect = text_surf.get_rect(
+                bottomleft=(10, self.entity.screen.get_height() - 10)
+            )
+            self.entity.screen.blit(text_surf, text_rect)
+
+            # current note
+            font = pygame.font.Font(None, 30)
+            text_surf = font.render(f"CURRENT: {note}", True, (255, 255, 255))
+            text_rect = text_surf.get_rect(
+                bottomleft=(10, self.entity.screen.get_height() - 35)
+            )
+            self.entity.screen.blit(text_surf, text_rect)
+            pygame.display.update()
+
+
+if __name__ == "__main__":
+    a = []
+    with open(os.path.join("file.txt"), mode="r") as f:
+        for line in f.readlines():
+            a.extend(line.split())
+
+    breakpoint()
