@@ -27,7 +27,9 @@ class Input:
         self.mouseX = 0
         self.mouseY = 0
         self.entity = entity
-        self.targetKeyIndex = random.randint(0, 11)
+        # self.targetKeyIndex = random.randint(0, 11)
+        self.targetKeyIndex = 0
+        self.targetNote = NOTE_NAMES[self.targetKeyIndex]
 
         self.counter = 0
 
