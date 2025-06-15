@@ -12,17 +12,23 @@ windowSize = 640, 480
 def main():
     pygame.mixer.pre_init(44100, -16, 2, 4096)
     pygame.init()
-    screen = pygame.display.set_mode(windowSize)
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    display_size = screen.get_size()
+    game_surface = pygame.Surface(windowSize)
     max_frame_rate = 60
-    dashboard = Dashboard("./img/font.png", 8, screen)
+    dashboard = Dashboard("./img/font.png", 8, game_surface)
     sound = Sound()
-    level = Level(screen, sound, dashboard)
-    menu = Menu(screen, dashboard, level, sound)
+    level = Level(game_surface, sound, dashboard)
+    menu = Menu(game_surface, dashboard, level, sound)
 
     while not menu.start:
         menu.update()
+        # Scale and blit to full screen
+        scaled_surface = pygame.transform.scale(game_surface, display_size)
+        screen.blit(scaled_surface, (0, 0))
+        pygame.display.flip()
 
-    mario = Mario(0, 0, level, screen, dashboard, sound)
+    mario = Mario(0, 0, level, game_surface, dashboard, sound)
     clock = pygame.time.Clock()
 
     while not mario.restart:
@@ -35,7 +41,10 @@ def main():
             level.drawLevel(mario.camera)
             dashboard.update()
             mario.update()
-
+        # Scale and blit to full screen
+        scaled_surface = pygame.transform.scale(game_surface, display_size)
+        screen.blit(scaled_surface, (0, 0))
+        pygame.display.flip()
         clock.tick(max_frame_rate)
     return "restart"
 

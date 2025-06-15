@@ -1,4 +1,6 @@
+from classes import Level
 import pygame
+import os
 
 from classes.Animation import Animation
 from classes.Camera import Camera

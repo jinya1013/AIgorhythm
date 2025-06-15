@@ -114,7 +114,7 @@ class Input:
             #         self.entity.traits["goTrait"].direction = 1
             # else:
             #     self.entity.traits["goTrait"].direction = 0
-            if float(magnitude) > 30:
+            if float(magnitude) > 0.7:
                 print(
                     f"note: {note}, targetNote: {self.targetNote}, note == targetNote: {note == self.targetNote}"
                 )
@@ -124,7 +124,7 @@ class Input:
 
             # target note
             font = pygame.font.Font(None, 30)
-            if self.counter % 360 == 0:
+            if self.counter % 480 == 0:
                 self.targetNote = NOTE_NAMES[
                     (
                         self.targetKeyIndex
@@ -133,19 +133,53 @@ class Input:
                     % 12
                 ]
 
-            text_surf = font.render(f"TARGET: {self.targetNote}", True, (255, 255, 255))
+            # Draw TARGET note with background and border
+            text_surf = font.render(f"TARGET: {self.targetNote}", True, (0, 0, 0))
             text_rect = text_surf.get_rect(
                 bottomleft=(10, self.entity.screen.get_height() - 10)
             )
+            # Background
+            bg_rect = text_rect.inflate(10, 6)
+            pygame.draw.rect(self.entity.screen, (255, 255, 200), bg_rect)
+            # Border
+            pygame.draw.rect(self.entity.screen, (0, 0, 0), bg_rect, 2)
             self.entity.screen.blit(text_surf, text_rect)
 
-            # current note
+            # Draw CURRENT note with background and border
             font = pygame.font.Font(None, 30)
-            text_surf = font.render(f"CURRENT: {note}", True, (255, 255, 255))
+            text_surf = font.render(f"CURRENT: {note}", True, (0, 0, 0))
             text_rect = text_surf.get_rect(
                 bottomleft=(10, self.entity.screen.get_height() - 35)
             )
+            bg_rect = text_rect.inflate(10, 6)
+            pygame.draw.rect(self.entity.screen, (220, 240, 255), bg_rect)
+            pygame.draw.rect(self.entity.screen, (0, 0, 0), bg_rect, 2)
             self.entity.screen.blit(text_surf, text_rect)
+
+            # Draw guiding arrow at top right with background
+            if note in NOTE_NAMES and self.targetNote in NOTE_NAMES:
+                note_idx = NOTE_NAMES.index(note)
+                target_idx = NOTE_NAMES.index(self.targetNote)
+                arrow_font = pygame.font.Font(None, 50)
+                if note_idx < target_idx:
+                    # Draw up arrow
+                    arrow_surf = arrow_font.render("GO UP!!", True, (0, 128, 0))
+                elif note_idx > target_idx:
+                    # Draw down arrow
+                    arrow_surf = arrow_font.render("GO DOWN!!", True, (200, 0, 0))
+                else:
+                    arrow_surf = None
+                if arrow_surf:
+                    screen_width = self.entity.screen.get_width()
+                    screen_height = self.entity.screen.get_height()
+                    arrow_rect = arrow_surf.get_rect(
+                        bottomright=(screen_width - 20, screen_height - 20)
+                    )
+                    bg_rect = arrow_rect.inflate(20, 10)
+                    pygame.draw.rect(self.entity.screen, (255, 255, 200), bg_rect)
+                    pygame.draw.rect(self.entity.screen, (0, 0, 0), bg_rect, 2)
+                    self.entity.screen.blit(arrow_surf, arrow_rect)
+
             pygame.display.update()
 
         self.counter += 1
