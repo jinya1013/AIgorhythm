@@ -12,7 +12,9 @@ windowSize = 640, 480
 def main():
     pygame.mixer.pre_init(44100, -16, 2, 4096)
     pygame.init()
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
+    info = pygame.display.Info()
+    screen_width, screen_height = info.current_w, info.current_h
+    screen = pygame.display.set_mode((screen_width, screen_height), pygame.NOFRAME)
     display_size = screen.get_size()
     game_surface = pygame.Surface(windowSize)
     max_frame_rate = 60
